@@ -20,6 +20,9 @@ import android.widget.EditText;
 import android.text.InputType;
 import android.content.DialogInterface;
 import android.widget.Toast;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -33,8 +36,11 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
+
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    public static String D = "Klotter Debug";
 
 
     private GoogleMap mMap;
@@ -48,6 +54,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(D, "app start");
         setContentView(R.layout.activity_main);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -109,6 +116,28 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     alertDialog.show();
             }
         });
+        /* For buttons */
+        setEventsForBtns();
+
+    }
+
+    /**
+     *
+     */
+    private void setEventsForBtns() {
+        Button addBtn = (Button) findViewById(R.id.addBtn);
+        Button msgBtn = (Button) findViewById(R.id.msgBtn);
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+              Log.e(D, "add");
+            }
+        });
+        msgBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.e(D, "msg");
+            }
+        });
+
     }
 
 
