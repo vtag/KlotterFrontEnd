@@ -1,8 +1,11 @@
 package vtag.klotter;
 
+import android.*;
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
+import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
@@ -41,6 +44,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public static String D = "Klotter Debug";
+    public Location lm;
 
 
     private GoogleMap mMap;
@@ -98,12 +102,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                             int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
                                     android.Manifest.permission.ACCESS_FINE_LOCATION);
+                            int permissionCheck2 = ContextCompat.checkSelfPermission(getApplicationContext(),
+                                    Manifest.permission.ACCESS_COARSE_LOCATION);
 
-                            Location myLocation = lManager.getLastKnownLocation(lManager.getBestProvider(new Criteria(), true));
 
-                            LatLng myCurrLocation = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-                            mMap.addMarker(new MarkerOptions().position(myCurrLocation).title(m_Text));
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrLocation));
+                            Log.e("LANDON", ""+permissionCheck);
+
+                            String myProvider = lManager.getBestProvider(new Criteria(), false);
+
+                            if(myProvider != null) {
+
+                                Location myLocation = getLastLocation();
+
+                                setLastKnownLocation(myLocation);
+
+                                if(myLocation != null) {
+                                    LatLng myCurrLocation = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+                                    mMap.addMarker(new MarkerOptions().position(myCurrLocation).title(m_Text));
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrLocation));
+                                }
+                            }
                         } // End of onClick(DialogInterface dialog, int whichButton)
                     }); //End of alert.setPositiveButton
                     alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -114,6 +132,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     }); //End of alert.setNegativeButton
                     AlertDialog alertDialog = alert.create();
                     alertDialog.show();
+
             }
         });
         /* For buttons */
@@ -169,14 +188,39 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-        Location myLocation = lManager.getLastKnownLocation(lManager.getBestProvider(new Criteria(), true));
+        if(permissionCheck == -1)
+            ActivityCompat.requestPermissions(this.getParent(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
 
-        LatLng myCurrLocation = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
-        mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrLocation));
-        mMap.addCircle(new CircleOptions().center(myCurrLocation).radius(5));
-        mMap.addCircle(new CircleOptions().center(myCurrLocation).radius(300));
+        String myProvider = lManager.getBestProvider(new Criteria(), true);
+
+        if(myProvider != null) {
+
+
+            Location myLocation = lManager.getLastKnownLocation(myProvider);
+
+            setLastKnownLocation(myLocation);
+
+            LatLng myCurrLocation = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+
+            mMap.moveCamera(CameraUpdateFactory.zoomTo(16));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(myCurrLocation));
+            mMap.addCircle(new CircleOptions().center(myCurrLocation).radius(5));
+            mMap.addCircle(new CircleOptions().center(myCurrLocation).radius(300));
+
+        }
+
+    }
+
+    public void setLastKnownLocation(Location l) {
+        this.lm = l;
+
+    }
+
+    public Location getLastLocation() {
+        return this.lm;
 
     }
 
